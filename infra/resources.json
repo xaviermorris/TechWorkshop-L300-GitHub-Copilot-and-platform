@@ -1,0 +1,267 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.40.2.10011",
+      "templateHash": "4154251141021801276"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "object"
+    },
+    "resourceToken": {
+      "type": "string"
+    },
+    "principalId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "$fxv#0": {
+      "resourcesResourceGroups": "rg-",
+      "storageStorageAccounts": "st",
+      "webSitesAppService": "app-",
+      "webServerFarms": "plan-",
+      "containerRegistryRegistries": "cr",
+      "insightsComponents": "appi-",
+      "operationalInsightsWorkspaces": "log-",
+      "cognitiveServicesAccounts": "cog-"
+    },
+    "abbrs": "[variables('$fxv#0')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2022-10-01",
+      "name": "[format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, parameters('resourceToken'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[format('{0}{1}', variables('abbrs').insightsComponents, parameters('resourceToken'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, parameters('resourceToken')))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, parameters('resourceToken')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-01-01-preview",
+      "name": "[format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": false,
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}{1}', variables('abbrs').webServerFarms, parameters('resourceToken'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "B1",
+        "tier": "Basic"
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "app,linux,container",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}{1}', variables('abbrs').webServerFarms, parameters('resourceToken')))]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "linuxFxVersion": "DOCKER|mcr.microsoft.com/dotnet/aspnet:6.0",
+          "alwaysOn": false,
+          "ftpsState": "Disabled",
+          "minTlsVersion": "1.2",
+          "appSettings": [
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}{1}', variables('abbrs').insightsComponents, parameters('resourceToken'))), '2020-02-02').ConnectionString]"
+            },
+            {
+              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.ContainerRegistry/registries', format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken'))), '2023-01-01-preview').loginServer)]"
+            },
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', format('{0}{1}', variables('abbrs').insightsComponents, parameters('resourceToken')))]",
+        "[resourceId('Microsoft.Web/serverfarms', format('{0}{1}', variables('abbrs').webServerFarms, parameters('resourceToken')))]",
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "OpenAI",
+      "sku": {
+        "name": "S0"
+      },
+      "properties": {
+        "customSubDomainName": "[format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken'))]",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')), 'gpt-4')]",
+      "sku": {
+        "name": "Standard",
+        "capacity": 10
+      },
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "gpt-4",
+          "version": "turbo-2024-04-09"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')), 'phi-3')]",
+      "sku": {
+        "name": "Standard",
+        "capacity": 10
+      },
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "phi-3",
+          "version": "1"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')), 'gpt-4')]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken'))), resourceId('Microsoft.Web/sites', format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken'))), 'AcrPull')]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken'))), '2022-09-01', 'full').identity.principalId]",
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken')))]",
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken')))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('principalId')))]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')))]",
+      "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken'))), parameters('principalId'), 'CognitiveServicesOpenAIUser')]",
+      "properties": {
+        "principalId": "[parameters('principalId')]",
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "CONTAINER_REGISTRY_ENDPOINT": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.ContainerRegistry/registries', format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken'))), '2023-01-01-preview').loginServer)]"
+    },
+    "CONTAINER_REGISTRY_NAME": {
+      "type": "string",
+      "value": "[format('{0}{1}', variables('abbrs').containerRegistryRegistries, parameters('resourceToken'))]"
+    },
+    "APP_SERVICE_NAME": {
+      "type": "string",
+      "value": "[format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken'))]"
+    },
+    "APP_SERVICE_URL": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken'))), '2022-09-01').defaultHostName)]"
+    },
+    "APP_SERVICE_IDENTITY_PRINCIPAL_ID": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}{1}', variables('abbrs').webSitesAppService, parameters('resourceToken'))), '2022-09-01', 'full').identity.principalId]"
+    },
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}{1}', variables('abbrs').insightsComponents, parameters('resourceToken'))), '2020-02-02').ConnectionString]"
+    },
+    "APPLICATIONINSIGHTS_NAME": {
+      "type": "string",
+      "value": "[format('{0}{1}', variables('abbrs').insightsComponents, parameters('resourceToken'))]"
+    },
+    "AZURE_OPENAI_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken'))), '2023-05-01').endpoint]"
+    },
+    "AZURE_OPENAI_NAME": {
+      "type": "string",
+      "value": "[format('{0}{1}', variables('abbrs').cognitiveServicesAccounts, parameters('resourceToken'))]"
+    },
+    "LOG_ANALYTICS_WORKSPACE_ID": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, parameters('resourceToken')))]"
+    }
+  }
+}

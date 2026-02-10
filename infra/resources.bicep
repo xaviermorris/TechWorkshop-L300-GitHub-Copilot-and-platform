@@ -114,7 +114,7 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
-// Deploy GPT-5.2 model (using gpt-4 as placeholder since gpt-5.2 may not be available yet)
+// Deploy GPT-4 model for AI capabilities
 resource gptDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
   parent: openAI
   name: 'gpt-4'
