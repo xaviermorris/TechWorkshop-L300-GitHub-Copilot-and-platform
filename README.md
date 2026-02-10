@@ -2,6 +2,10 @@
 
 This lab guides you through a series of practical exercises focused on modernising Zava's business applications and databases by migrating everything to Azure, leveraging GitHub Enterprise, Copilot, and Azure services. Each exercise is designed to deliver hands-on experience in governance, automation, security, AI integration, and observability, ensuring Zava’s transition to Azure is robust, secure, and future-ready.
 
+## Infrastructure (AZD + Bicep)
+
+Azure infrastructure for the ZavaStorefront dev environment lives in `infra/` and is provisioned with the Azure Developer CLI. See [infra/README.md](infra/README.md) for the provisioning flow and ACR cloud build steps (no local Docker required).
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
