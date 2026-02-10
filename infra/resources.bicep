@@ -32,7 +32,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 // Container Registry
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: '${abbrs.containerRegistryRegistries}${resourceToken}'
   location: location
   tags: tags
