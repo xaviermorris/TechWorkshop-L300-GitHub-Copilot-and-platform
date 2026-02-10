@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "value": "zavastorefront"
+    },
+    "environmentName": {
+      "value": "dev"
+    },
+    "location": {
+      "value": "westus3"
+    },
+    "containerImageName": {
+      "value": "zavastorefront"
+    },
+    "containerImageTag": {
+      "value": "latest"
+    },
+    "acrSku": {
+      "value": "Basic"
+    },
+    "appServiceSku": {
+      "value": "B1"
+    },
+    "logAnalyticsSku": {
+      "value": "PerGB2018"
+    },
+    "logRetentionInDays": {
+      "value": 30
+    },
+    "foundrySku": {
+      "value": "S0"
+    },
+    "gptDeploymentName": {
+      "value": "gpt-5-2"
+    },
+    "gptModelName": {
+      "value": "gpt-5.2"
+    },
+    "gptModelVersion": {
+      "value": "latest"
+    },
+    "phiDeploymentName": {
+      "value": "phi"
+    },
+    "phiModelName": {
+      "value": "phi"
+    },
+    "phiModelVersion": {
+      "value": "latest"
+    }
+  }
+}
