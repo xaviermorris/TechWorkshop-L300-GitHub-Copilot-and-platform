@@ -97,9 +97,14 @@ logs/
 # Secrets / env files
 .env
 .env.*
+!.env.template
 secrets.json
 *.pem
 *.key
+
+# Azure Developer CLI
+.azure/*
+!.azure/.env.template
 
 # Database
 *.db

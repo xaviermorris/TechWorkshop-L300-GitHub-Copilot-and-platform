@@ -1,0 +1,15 @@
+**/.git
+**/.gitignore
+**/.vscode
+**/.vs
+**/bin
+**/obj
+**/.dockerignore
+**/Dockerfile*
+**/.env
+**/docker-compose*
+**/*.md
+**/.azure
+**/charts
+**/azure-pipelines.yml
+**/.github
