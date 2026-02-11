@@ -1,0 +1,33 @@
+name: zava-storefront
+metadata:
+  template: custom-bicep-appservice-container
+
+infra:
+  provider: bicep
+  path: infra
+  parameters:
+    env: ${AZURE_ENV_NAME}
+    location: westus3
+    namePrefix: zava
+    containerImageTag: zavastorefront:${AZURE_ENV_NAME}
+
+services:
+  web:
+    project: ./src
+    language: dotnet
+    host: appservice
+    docker:
+      path: ./Dockerfile
+      context: .
+      image: zavastorefront
+
+hooks:
+  postprovision:
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "Reminder: build and push container image to ACR, then update containerImageTag if needed."
+    posix:
+      shell: bash
+      run: |
+        echo "Reminder: build and push container image to ACR, then update containerImageTag if needed."

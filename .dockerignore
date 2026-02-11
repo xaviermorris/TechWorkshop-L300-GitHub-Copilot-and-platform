@@ -1,0 +1,13 @@
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.swp
+*.suo
+*.vscode/
+node_modules/
+.git/
+.gitignore
+Dockerfile
+.env
