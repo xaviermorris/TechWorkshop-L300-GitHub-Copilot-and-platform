@@ -19,18 +19,21 @@ param appServicePlanSku object = {
 param appServiceAlwaysOn bool = false
 @description('Log Analytics retention in days')
 param logAnalyticsRetentionDays int = 30
+@description('Id of the principal to assign OpenAI roles (optional)')
+param principalId string = ''
 param tags object = {
   environment: env
   workload: 'zavastorefront'
 }
 
-// Unique suffix from resource group ID to ensure globally unique ACR name
+// Unique suffix from resource group ID to ensure globally unique names
 var uniqueSuffix = uniqueString(resourceGroup().id)
 var acrName = '${namePrefix}${env}acr${uniqueSuffix}'
 var planName = '${namePrefix}${env}asp'
 var webAppName = '${namePrefix}${env}web'
 var logAnalyticsName = '${namePrefix}${env}law'
 var appInsightsName = '${namePrefix}${env}ai'
+var openAIName = '${namePrefix}${env}oai${uniqueSuffix}'
 
 module acr './modules/acr.bicep' = {
   name: 'acr'
@@ -86,6 +89,16 @@ module webApp './modules/webApp.bicep' = {
   }
 }
 
+module openAI './modules/openAI.bicep' = {
+  name: 'openAI'
+  params: {
+    name: openAIName
+    location: location
+    principalId: principalId
+    tags: tags
+  }
+}
+
 // Existing view of the ACR for scoping role assignment
 resource acrResource 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: acrName
@@ -107,3 +120,5 @@ output acrLoginServer string = acr.outputs.loginServer
 output webAppName string = webAppName
 output webAppHostname string = webApp.outputs.defaultHostname
 output appInsightsConnectionString string = appInsights.outputs.connectionString
+output openAIEndpoint string = openAI.outputs.endpoint
+output openAIName string = openAI.outputs.name

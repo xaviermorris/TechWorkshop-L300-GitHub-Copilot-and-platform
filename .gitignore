@@ -97,9 +97,19 @@ logs/
 # Secrets / env files
 .env
 .env.*
+!.env.template
 secrets.json
 *.pem
 *.key
+
+# Azure Developer CLI
+.azure/*
+!.azure/.env.template
+
+# Bicep generated files
+infra/*.json
+!infra/main.parameters.json
+!infra/abbreviations.json
 
 # Database
 *.db

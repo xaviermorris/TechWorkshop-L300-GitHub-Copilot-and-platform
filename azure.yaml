@@ -5,6 +5,7 @@ metadata:
 infra:
   provider: bicep
   path: infra
+  module: main
   parameters:
     env: ${AZURE_ENV_NAME}
     location: westus3

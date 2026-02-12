@@ -1,13 +1,37 @@
-# Infrastructure
+# Azure Infrastructure for ZavaStorefront
 
-This folder contains Bicep modules to deploy the Zava Storefront dev environment.
+This directory contains the Azure infrastructure as code (IaC) using Bicep templates for the ZavaStorefront web application.
 
-## Resources
-- Azure Container Registry (ACR) with admin disabled
-- Log Analytics workspace + Application Insights
-- Linux App Service Plan + Web App for Containers (system-assigned managed identity, ACR pull via AcrPull role)
+## Architecture Overview
+
+The infrastructure includes:
+
+- **Azure Container Registry**: For storing Docker container images
+- **Azure App Service (Linux)**: Hosting the containerized .NET application
+- **Application Insights**: For monitoring and diagnostics
+- **Log Analytics Workspace**: For centralized logging
+- **Azure OpenAI (Microsoft Foundry)**: For AI capabilities with GPT and Phi models
+
+## Bicep Structure
+
+- `infra/main.bicep` - Main orchestrator, resource-group-level deployment
+- `infra/modules/acr.bicep` - Azure Container Registry (admin disabled)
+- `infra/modules/appServicePlan.bicep` - Linux App Service Plan
+- `infra/modules/webApp.bicep` - Web App for Containers (managed identity)
+- `infra/modules/logAnalytics.bicep` - Log Analytics Workspace
+- `infra/modules/appInsights.bicep` - Application Insights
+- `infra/modules/openAI.bicep` - Azure OpenAI with GPT-4 and Phi-3 deployments
+
+## Key Features
+
+- **RBAC-based Authentication**: App Service uses managed identity to pull images from Container Registry (no passwords)
+- **Container Deployment**: Application runs in Docker containers
+- **Dev Environment**: Configured for development workloads
+- **Region**: All resources deployed in `westus3` for optimal AI model availability
+- **Single Resource Group**: All resources organized in one resource group
 
 ## Parameters (main.bicep)
+
 - `env`: environment short name (default `dev`)
 - `location`: region (default `westus3`)
 - `namePrefix`: resource name prefix (default `zava`)
@@ -17,20 +41,44 @@ This folder contains Bicep modules to deploy the Zava Storefront dev environment
 - `appServiceAlwaysOn`: enable AlwaysOn on the Web App (default false)
 - `logAnalyticsRetentionDays`: retention for Log Analytics
 
-## Usage
-1. Build and push an image to ACR (cloud build example):
-   ```sh
-   az acr build -r <acrName> -t zavastorefront:<env> .
-   ```
-   Then set `containerImageTag=zavastorefront:<env>` when provisioning/deploying.
-2. Initialize AZD at repo root:
-   ```sh
-   azd init
-   ```
-3. Preview and provision:
-   ```sh
-   azd provision --preview
-   azd up
-   ```
+## Prerequisites
 
-> Note: Microsoft Foundry resource is not scaffolded because the provider schema was not discoverable here. Add it later as a separate module once the correct resource type/API version is confirmed for westus3.
+- [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- Azure subscription
+- Appropriate Azure permissions to create resources
+
+## Deployment
+
+### Build and push an image to ACR (cloud build):
+
+```sh
+az acr build -r <acrName> -t zavastorefront:<env> .
+```
+
+### Initialize AZD and provision:
+
+```sh
+azd init
+azd provision --preview
+azd up
+```
+
+## RBAC Configuration
+
+The App Service is automatically granted the `AcrPull` role on the Container Registry, allowing it to pull container images without requiring registry credentials.
+
+## Environment Variables
+
+The following environment variables are automatically configured:
+
+- `APPLICATIONINSIGHTS_CONNECTION_STRING`: For Application Insights integration
+- `DOCKER_REGISTRY_SERVER_URL`: Container Registry URL
+- `AZURE_OPENAI_ENDPOINT`: Azure OpenAI service endpoint
+
+## Clean Up
+
+To remove all deployed resources:
+
+```bash
+azd down
+```
