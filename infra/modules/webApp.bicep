@@ -26,6 +26,10 @@ resource site 'Microsoft.Web/sites@2023-12-01' = {
       linuxFxVersion: 'DOCKER|${fullImage}'
       acrUseManagedIdentityCreds: true
       alwaysOn: alwaysOn
+      ftpsState: 'Disabled'
+      httpLoggingEnabled: true
+      detailedErrorLoggingEnabled: true
+      requestTracingEnabled: true
       appSettings: [
         {
           name: 'WEBSITES_PORT'
