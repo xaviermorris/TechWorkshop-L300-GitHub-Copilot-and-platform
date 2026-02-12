@@ -36,7 +36,7 @@ resource site 'Microsoft.Web/sites@2023-12-01' = {
           value: 'http://+:${containerPort}'
         }
         {
-          name: 'APPINSIGHTS_CONNECTIONSTRING'
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: appInsightsConnectionString
         }
       ]
