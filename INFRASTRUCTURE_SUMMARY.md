@@ -21,7 +21,7 @@ This implementation provisions the complete Azure infrastructure for the ZavaSto
 
 ### Configuration Files
 - `azure.yaml` - AZD project configuration
-- `Dockerfile` - Multi-stage Docker build for .NET 6.0 application
+- `Dockerfile` - Multi-stage Docker build for .NET 8.0 application
 - `.dockerignore` - Docker ignore patterns
 
 ### Infrastructure as Code (Bicep)

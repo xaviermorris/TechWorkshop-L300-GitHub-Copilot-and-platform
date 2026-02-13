@@ -9,7 +9,7 @@ You are a coding agent working on the ZavaStorefront repository. Follow these ru
 - Write clear commit messages that reference the issue number (e.g., `fix: resolve cart total calculation #12`).
 
 ## Project Structure
-- `src/` — ASP.NET Core 6.0 MVC application (Controllers, Models, Services, Views)
+- `src/` — ASP.NET Core 8.0 MVC application (Controllers, Models, Services, Views)
 - `infra/` — Bicep infrastructure-as-code (modules in `infra/modules/`)
 - `.github/workflows/` — CI/CD pipelines
 - `Dockerfile` — Multi-stage container build at repo root
