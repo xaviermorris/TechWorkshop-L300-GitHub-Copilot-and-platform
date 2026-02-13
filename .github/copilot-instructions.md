@@ -1,10 +1,10 @@
 # Copilot Custom Instructions for ZavaStorefront
 
 ## Project Overview
-This is the **ZavaStorefront** web application — an ASP.NET Core 6.0 MVC app deployed as a Docker container to Azure App Service (Linux, Web App for Containers). Infrastructure is defined in Bicep (`infra/`) and provisioned with Azure Developer CLI (`azd`).
+This is the **ZavaStorefront** web application — an ASP.NET Core 8.0 MVC app deployed as a Docker container to Azure App Service (Linux, Web App for Containers). Infrastructure is defined in Bicep (`infra/`) and provisioned with Azure Developer CLI (`azd`).
 
 ## Architecture
-- **Runtime**: .NET 6, ASP.NET Core MVC
+- **Runtime**: .NET 8, ASP.NET Core MVC
 - **Container**: Multi-stage Docker build (`Dockerfile` at repo root)
 - **Infrastructure**: Bicep modules in `infra/` — ACR, App Service Plan, Web App, Log Analytics, App Insights
 - **CI/CD**: GitHub Actions workflow in `.github/workflows/container-appservice.yml`
